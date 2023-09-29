@@ -6,6 +6,8 @@ def get_columns():
                "sector", 
                "previousClose", 
                "per",
+               "totalRevenue",
+               "Operating Income",
                "dividendRate", 
             #    "dividendYield", 
             #    "fiveYearAvgDividendYield", 

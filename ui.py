@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QPushButton
 from PyQt5.QtCore import Qt
+import pandas as pd
 
 class TableDisplay(QMainWindow):
     def __init__(self, df):
@@ -35,11 +36,15 @@ class TableDisplay(QMainWindow):
         # Populate the table with data
         for row_idx, row_data in self.df.iterrows():
             for col_idx, cell_data in enumerate(row_data):
-                if self.df.columns[col_idx] == "marketCap":
-                    # Convert Market Cap to billions and format accordingly
-                    item = QTableWidgetItem(f'{cell_data / 1e9:.2f} B')
+
+                item = QTableWidgetItem()
+                if pd.isna(cell_data):
+                    cell_data = -1
+                elif self.df.columns[col_idx] == "marketCap":
+                    item.setData(Qt.DisplayRole, cell_data / 1e9)
                 else:
-                    item = QTableWidgetItem(str(cell_data))
+                    item.setData(Qt.DisplayRole, cell_data)
+
                 # Set item flags to make it non-editable
                 item.setFlags(item.flags() ^ Qt.ItemIsEditable)
                 self.tableWidget.setItem(row_idx, col_idx, item)
@@ -48,7 +53,8 @@ class TableDisplay(QMainWindow):
         self.tableWidget.resizeColumnsToContents()
 
     def sort_market_cap(self):
-        # Sort DataFrame by Market Cap in descending order
-        self.df.sort_values(by='Market Cap', ascending=False, inplace=True)
+        # Sort DataFrame by Market Cap in ascending order (string comparison)
+        self.df['Market Cap'] = self.df['Market Cap'].astype(str)
+        self.df.sort_values(by='Market Cap', ascending=True, inplace=True)
         # Repopulate the table with sorted data
         self.setup_table()

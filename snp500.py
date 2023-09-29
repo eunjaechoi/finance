@@ -32,12 +32,31 @@ def preprocessing(data):
     except KeyError:
         per = None
 
+    if not "totalRevenue" in ticker.info:
+        ticker.info["totalRevenue"] = None
+
+    today = datetime.today()  # 현재 날짜
+    last_year_end = today.replace(year=today.year - 1, month=12, day=31).strftime('%Y-%m-%d')  # 작년 12월 31일
+
+    if not 'Operating Income' in ticker.financials.index:
+        operating_income = None
+    else:
+        # 컬럼 존재 여부 체크
+        if last_year_end in ticker.financials.columns:
+            operating_income = ticker.financials.loc["Operating Income", last_year_end]
+        else:
+            operating_income = None
+
+    # operating_income = ticker.financials.loc["Operating Income", last_year_end]
+
     return [name,
             symbol,
             ticker.info["industry"],
             ticker.info["sector"],
             ticker.info["previousClose"],
             per,
+            ticker.info["totalRevenue"],
+            operating_income,
             ticker.info["dividendRate"],
             # ticker.info["dividendYield"],
             # ticker.info["fiveYearAvgDividendYield"],
